@@ -1,20 +1,14 @@
 apply plugin: 'groovy'
-apply plugin: 'idea'
-
-sourceCompatibility = 1.6
-
-ideaProject {
-	jdkName = '1.6'
-}
 
 repositories {
 	mavenCentral()
 }
 
+
 dependencies {
-	groovy 'org.codehaus.groovy:groovy:2.0.1'
-	groovy 'org.codehaus.groovy:groovy-json:2.0.1'
-	groovy 'commons-cli:commons-cli:1.2'
-	compile 'com.google.guava:guava:13.0'
-	testCompile 'junit:junit:4.10'
+	compile 'org.codehaus.groovy:groovy-json:2.1.6'
+	compile 'commons-cli:commons-cli:1.2'
+	compile 'com.google.guava:guava:14.0.1'
+
+	testCompile 'junit:junit:4.11'
 }
