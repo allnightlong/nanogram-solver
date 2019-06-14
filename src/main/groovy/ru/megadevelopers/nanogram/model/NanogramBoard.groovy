@@ -1,10 +1,13 @@
 package ru.megadevelopers.nanogram.model
 
+import com.google.common.eventbus.EventBus
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 
 @CompileStatic
 class NanogramBoard {
+
+    static int DELEAY = 100
 
     List<List<Integer>> top
     List<List<Integer>> left
@@ -13,6 +16,8 @@ class NanogramBoard {
     int height
 
     private int[][] board
+
+    private EventBus eventBus
 
     NanogramBoard(List<List<Integer>> top, List<List<Integer>> left, int width, int height) {
         this.top = top
@@ -49,8 +54,10 @@ class NanogramBoard {
         board[row][column]
     }
 
-    int setValue(int row, int column, int value) {
+    void setValue(int row, int column, int value) {
         board[row][column] = value
+
+        eventBus.post(new BoardValueChangeEvent(row, column, value))
     }
 
     private void printTop(int leftOffset, int topOffset) {
@@ -86,6 +93,7 @@ class NanogramBoard {
 
 
     boolean solve() {
+        Thread.sleep(DELEAY)
         for (int row = 0; row < height; row++) {
             for (int column = 0; column < width; column++) {
                 if (getValue(row, column) == Cell.NO_VALUE) {
@@ -127,6 +135,10 @@ class NanogramBoard {
 
         List<Integer> currentLine = board.collect { int[] columns -> columns[column] }
         Line.isValid(currentLine, candidates)
+    }
+
+    void registerEventBus(EventBus eventBus) {
+        this.eventBus = eventBus
     }
 
 }
