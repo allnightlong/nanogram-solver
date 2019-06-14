@@ -1,5 +1,6 @@
 package ru.megadevelopers.nanogram
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -11,10 +12,12 @@ class Nanogram {
     private int width
     private int height
 
-    private static int[][] board
+    private int[][] board
+    private Map<String, List<BitSet>> candidatesCache
 
     void init() {
         board = new int[width][height]
+        candidatesCache = [:]
     }
 
 
@@ -39,8 +42,14 @@ class Nanogram {
 
     private void printLeft(boolean printBoard) {
         left.eachWithIndex { List<Integer> lines, int row ->
-            lines.eachWithIndex { int value, int column ->
+            lines.each { int value ->
                 print(toChar(value))
+            }
+
+            if (printBoard) {
+                width.times { int column ->
+                    print(board[column][row] == Cell.FILLED ? '#' : '.')
+                }
             }
 
             println()
@@ -53,28 +62,52 @@ class Nanogram {
 
 
     private boolean solve() {
-        width.times { int row ->
-            height.times { column ->
-                if (board[row][column] == Cell.NO_VALUE) {
+        width.times { column ->
+            height.times { int row ->
+                if (board[column][row] == Cell.NO_VALUE) {
 
-                    board[row][column] = Cell.EMPTY
-                    if (isValid(row, column) && solve()) {
+                    board[column][row] = Cell.FILLED
+                    if (isValid(column, row) && solve()) {
                         return true
                     }
 
-                    board[row][column] = Cell.FILLED
-                    if (isValid(row, column) && solve()) {
+                    board[column][row] = Cell.EMPTY
+                    if (isValid(column, row) && solve()) {
                         return true
                     }
 
-                    board[row][column] = Cell.NO_VALUE
+                    board[column][row] = Cell.NO_VALUE
                 }
                 return false
             }
         }
     }
 
-    boolean isValid(int row, int column) {
-        false
+    private boolean isValid(int column, int row) {
+        isValidRow(row)
+        isValidColumn(column)
+    }
+
+    private boolean isValidColumn(int column) {
+        List<Integer> topLine = top[column]
+        List<BitSet> candidates = getCandidates(topLine, height)
+
+        List<Integer> currentLine = board[column].toList()
+        Line.isValid(currentLine, candidates)
+    }
+
+    @CompileDynamic
+    private boolean isValidRow(int row) {
+        List<Integer> leftLine = left[row]
+        List<BitSet> candidates = getCandidates(leftLine, width)
+
+        List<Integer> currentLine = board.collect { int[] rows -> rows[row] }
+        Line.isValid(currentLine, candidates)
+    }
+
+    private List<BitSet> getCandidates(List<Integer> line, int length) {
+        Line.candidates(line, length)
+//        String key = "${length}${line.join('')}"
+//        candidatesCache.compute(key, { Line.candidates(line, length) })
     }
 }

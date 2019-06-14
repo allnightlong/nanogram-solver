@@ -7,11 +7,29 @@ import static com.google.common.base.Strings.repeat
 @CompileStatic
 class Line {
 
+    static boolean isValid(List<Integer> line, List<BitSet> candidates) {
+        candidates.any { candidate -> isValid(line, candidate) }
+    }
+
+    static boolean isValid(List<Integer> line, BitSet candidate) {
+        for (int index = 0; index < line.size(); index++) {
+            Integer value = line[index]
+
+            if (value == Cell.EMPTY && candidate.get(index)) {
+                return false
+            }
+            if (value == Cell.FILLED && !candidate.get(index)) {
+                return false
+            }
+        }
+        return true
+    }
+
     static List<BitSet> candidates(List<Integer> line, int length) {
 
         int totalFilled = line.sum() as int
 
-        List<String> prepared = line.collect { Integer value -> repeat(Cell.FILLED_CHAR as String, value) }
+        List<String> prepared = line.findAll().collect { Integer value -> repeat(Cell.FILLED_CHAR as String, value) }
 
         def sequence = generateSequences(prepared, length - totalFilled + 1)
 
