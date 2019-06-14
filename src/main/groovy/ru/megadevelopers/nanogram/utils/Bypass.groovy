@@ -1,6 +1,5 @@
 package ru.megadevelopers.nanogram.utils
 
-import ru.megadevelopers.nanogram.utils.MathUtils
 
 abstract class Bypass {
 	static List<List<Integer>> generate(List<Integer> source) {

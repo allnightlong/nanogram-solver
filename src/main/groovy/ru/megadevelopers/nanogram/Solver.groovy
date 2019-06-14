@@ -5,13 +5,8 @@ import groovy.json.JsonSlurper
 def resource = getClass().getResource('/source.json')
 
 def result = new JsonSlurper().parse(resource)
-def transform = {
-	it.findAll().collect {it as int}
-}
-def top = result.data_top.collect(transform)
-def left = result.data_left.collect(transform)
-int height = result.height
-int width = result.width
+result.data_top.each { Collections.replaceAll(it, '', 0) }
+result.data_left.each { Collections.replaceAll(it, '', 0) }
 
-def nanogram = new Nanogram(width: width, height: height, left: left, top: top)
-nanogram.solve()
+def nanogram = new Nanogram(left: result.data_left, top: result.data_top, height: result.height, width: result.width)
+nanogram.print()
