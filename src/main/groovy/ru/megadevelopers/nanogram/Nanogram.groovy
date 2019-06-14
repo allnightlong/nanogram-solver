@@ -1,7 +1,6 @@
 package ru.megadevelopers.nanogram
 
 import groovy.transform.CompileStatic
-import ru.megadevelopers.nanogram.utils.Bypass
 
 @CompileStatic
 class Nanogram {
@@ -12,41 +11,19 @@ class Nanogram {
     private int width
     private int height
 
-    private void checkRanges() {
-        if (left.size() != height) throw new IllegalStateException("height check failed")
-        if (top.size() != width) throw new IllegalStateException("width check failed")
+    private static int[][] board
+
+    void init() {
+        board = new int[width][height]
     }
 
-    List<Line> getLines(Direction direction) {
-        checkRanges()
-        def result = []
-        if (direction == Direction.HORIZONTAL) {
-            height.times { result << new Line(length: width, blocks: left[it]) }
-        } else {
-            width.times { result << new Line(length: height, blocks: top[it]) }
-        }
-        result
-    }
 
-    List<BitSet> solve() {
-        def direction = chooseSolveDirection()
-        def lines = getLines(direction)
-        def options = lines*.generateOptions()
-        def bypasses = Bypass.generate(options*.size())
-        for (bypass in bypasses) {
-            def solution = []
-            bypass.eachWithIndex { it, index -> solution << options[index][it] }
-            if (checkSolution(solution, direction)) return solution
-        }
-        null
-    }
-
-    void print() {
+    void print(boolean printBoard) {
         def topOffset = top.collect { List<Integer> lines -> lines.size() }.max()
         def leftOffset = left.collect { List<Integer> lines -> lines.size() }.max()
 
         printTop(leftOffset, topOffset)
-        printLeft()
+        printLeft(printBoard)
     }
 
     private void printTop(int leftOffset, int topOffset) {
@@ -60,7 +37,7 @@ class Nanogram {
         }
     }
 
-    private void printLeft() {
+    private void printLeft(boolean printBoard) {
         left.eachWithIndex { List<Integer> lines, int row ->
             lines.eachWithIndex { int value, int column ->
                 print(toChar(value))
@@ -70,29 +47,34 @@ class Nanogram {
         }
     }
 
-    private char toChar(int input) {
+    private static char toChar(int input) {
         input ? Character.forDigit(input, 35) : ' ' as char
     }
 
-    private checkSolution(List<BitSet> solution, Direction solutionDirection) {
-        def direction = solutionDirection == Direction.HORIZONTAL ? Direction.VERTICAL : Direction.HORIZONTAL
-        def solutionLength = solutionDirection == Direction.HORIZONTAL ? width : height
-        def solutionCount = solution.size()
-        def canonical = getLines(direction)
 
-        for (int offset in 0..<solutionLength) {
-            def bitSet = new BitSet()
-            for (int index in 0..<solutionCount) {
-                bitSet.set(index, solution[index][offset])
+    private boolean solve() {
+        width.times { int row ->
+            height.times { column ->
+                if (board[row][column] == Cell.NO_VALUE) {
+
+                    board[row][column] = Cell.EMPTY
+                    if (isValid(row, column) && solve()) {
+                        return true
+                    }
+
+                    board[row][column] = Cell.FILLED
+                    if (isValid(row, column) && solve()) {
+                        return true
+                    }
+
+                    board[row][column] = Cell.NO_VALUE
+                }
+                return false
             }
-            if (canonical[offset] != Line.fromBitSet(bitSet, solutionCount)) return false
         }
-        true
     }
 
-    private Direction chooseSolveDirection() {
-//        def verticalPermutation = MathUtils.multiply(getLines(Direction.VERTICAL)*.countOptions())
-//        def horizontalPermutation = MathUtils.multiply(getLines(Direction.HORIZONTAL)*.countOptions())
-//        horizontalPermutation < verticalPermutation ? Direction.HORIZONTAL : Direction.VERTICAL
+    boolean isValid(int row, int column) {
+        false
     }
 }

@@ -9,4 +9,5 @@ result.data_top.each { Collections.replaceAll(it, '', 0) }
 result.data_left.each { Collections.replaceAll(it, '', 0) }
 
 def nanogram = new Nanogram(left: result.data_left, top: result.data_top, height: result.height, width: result.width)
+nanogram.init()
 nanogram.print()
