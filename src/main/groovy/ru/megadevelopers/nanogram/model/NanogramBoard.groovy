@@ -1,31 +1,56 @@
-package ru.megadevelopers.nanogram
+package ru.megadevelopers.nanogram.model
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class Nanogram {
+class NanogramBoard {
 
     List<List<Integer>> top
     List<List<Integer>> left
 
-    private int width
-    private int height
+    int width
+    int height
 
     private int[][] board
 
-    void init() {
-        board = new int[height][width]
+    NanogramBoard(List<List<Integer>> top, List<List<Integer>> left, int width, int height) {
+        this.top = top
+        this.left = left
+        this.width = width
+        this.height = height
+
+        this.board = new int[height][width]
     }
 
-
     void print(boolean printBoard) {
-        def topOffset = top.collect { List<Integer> lines -> lines.size() }.max()
-        def leftOffset = left.collect { List<Integer> lines -> lines.size() }.max()
-
-        printTop(leftOffset, topOffset)
+        printTop(leftOffset(), topOffset())
         printLeft(printBoard)
         println()
+    }
+
+    int topOffset() {
+        top.collect { List<Integer> lines -> lines.size() }.max()
+    }
+
+    int getHeightWithOffset() {
+        height + topOffset()
+    }
+
+    int leftOffset() {
+        left.collect { List<Integer> lines -> lines.size() }.max()
+    }
+
+    int getWidthWithOffset() {
+        width + leftOffset()
+    }
+
+    int getValue(int row, int column) {
+        board[row][column]
+    }
+
+    int setValue(int row, int column, int value) {
+        board[row][column] = value
     }
 
     private void printTop(int leftOffset, int topOffset) {
@@ -47,7 +72,7 @@ class Nanogram {
 
             if (printBoard) {
                 width.times { int column ->
-                    print(board[row][column] == Cell.FILLED ? '#' : '.')
+                    print(getValue(row, column) == Cell.FILLED ? 'X' : '.')
                 }
             }
 
@@ -63,19 +88,19 @@ class Nanogram {
     boolean solve() {
         for (int row = 0; row < height; row++) {
             for (int column = 0; column < width; column++) {
-                if (board[row][column] == Cell.NO_VALUE) {
+                if (getValue(row, column) == Cell.NO_VALUE) {
 
-                    board[row][column] = Cell.FILLED
+                    setValue(row, column, Cell.FILLED)
                     if (isValid(row, column) && solve()) {
                         return true
                     }
 
-                    board[row][column] = Cell.EMPTY
+                    setValue(row, column, Cell.EMPTY)
                     if (isValid(row, column) && solve()) {
                         return true
                     }
 
-                    board[row][column] = Cell.NO_VALUE
+                    setValue(row, column, Cell.NO_VALUE)
                     return false
                 }
             }

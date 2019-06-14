@@ -1,8 +1,9 @@
-package ru.megadevelopers.nanogram
+package ru.megadevelopers.nanogram.model
 
+import ru.megadevelopers.nanogram.model.Line
 import spock.lang.Specification
 
-import static ru.megadevelopers.nanogram.Line.bitSetList
+import static ru.megadevelopers.nanogram.model.Line.bitSetList
 
 class LineSpec extends Specification {
     void candidates() {

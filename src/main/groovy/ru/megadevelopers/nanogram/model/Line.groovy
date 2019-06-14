@@ -1,4 +1,4 @@
-package ru.megadevelopers.nanogram
+package ru.megadevelopers.nanogram.model
 
 import groovy.transform.CompileStatic
 
