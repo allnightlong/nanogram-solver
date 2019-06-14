@@ -13,11 +13,9 @@ class Nanogram {
     private int height
 
     private int[][] board
-    private Map<String, List<BitSet>> candidatesCache
 
     void init() {
-        board = new int[width][height]
-        candidatesCache = [:]
+        board = new int[height][width]
     }
 
 
@@ -27,6 +25,7 @@ class Nanogram {
 
         printTop(leftOffset, topOffset)
         printLeft(printBoard)
+        println()
     }
 
     private void printTop(int leftOffset, int topOffset) {
@@ -48,7 +47,7 @@ class Nanogram {
 
             if (printBoard) {
                 width.times { int column ->
-                    print(board[column][row] == Cell.FILLED ? '#' : '.')
+                    print(board[row][column] == Cell.FILLED ? '#' : '.')
                 }
             }
 
@@ -61,53 +60,48 @@ class Nanogram {
     }
 
 
-    private boolean solve() {
-        width.times { column ->
-            height.times { int row ->
-                if (board[column][row] == Cell.NO_VALUE) {
+    boolean solve() {
+        for (int row = 0; row < height; row++) {
+            for (int column = 0; column < width; column++) {
+                if (board[row][column] == Cell.NO_VALUE) {
 
-                    board[column][row] = Cell.FILLED
-                    if (isValid(column, row) && solve()) {
+                    board[row][column] = Cell.FILLED
+                    if (isValid(row, column) && solve()) {
                         return true
                     }
 
-                    board[column][row] = Cell.EMPTY
-                    if (isValid(column, row) && solve()) {
+                    board[row][column] = Cell.EMPTY
+                    if (isValid(row, column) && solve()) {
                         return true
                     }
 
-                    board[column][row] = Cell.NO_VALUE
+                    board[row][column] = Cell.NO_VALUE
+                    return false
                 }
-                return false
             }
         }
+        return true
     }
 
-    private boolean isValid(int column, int row) {
-        isValidRow(row)
-        isValidColumn(column)
+    private boolean isValid(int row, int column) {
+        isValidRow(row) && isValidColumn(column)
     }
 
-    private boolean isValidColumn(int column) {
-        List<Integer> topLine = top[column]
-        List<BitSet> candidates = getCandidates(topLine, height)
+    private boolean isValidRow(int row) {
+        List<Integer> leftLine = left[row]
+        List<BitSet> candidates = Line.candidates(leftLine, width)
 
-        List<Integer> currentLine = board[column].toList()
+        List<Integer> currentLine = board[row].toList()
         Line.isValid(currentLine, candidates)
     }
 
     @CompileDynamic
-    private boolean isValidRow(int row) {
-        List<Integer> leftLine = left[row]
-        List<BitSet> candidates = getCandidates(leftLine, width)
+    private boolean isValidColumn(int column) {
+        List<Integer> topLine = top[column]
+        List<BitSet> candidates = Line.candidates(topLine, height)
 
-        List<Integer> currentLine = board.collect { int[] rows -> rows[row] }
+        List<Integer> currentLine = board.collect { int[] columns -> columns[column] }
         Line.isValid(currentLine, candidates)
     }
 
-    private List<BitSet> getCandidates(List<Integer> line, int length) {
-        Line.candidates(line, length)
-//        String key = "${length}${line.join('')}"
-//        candidatesCache.compute(key, { Line.candidates(line, length) })
-    }
 }
