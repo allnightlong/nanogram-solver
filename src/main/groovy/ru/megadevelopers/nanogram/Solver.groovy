@@ -2,9 +2,9 @@ package ru.megadevelopers.nanogram
 
 import groovy.json.JsonSlurper
 
-File file = new File('source.json')
-JsonSlurper slurper = new JsonSlurper()
-def result = slurper.parse(file.newReader())
+def resource = getClass().getResource('/source.json')
+
+def result = new JsonSlurper().parse(resource)
 def transform = {
 	it.findAll().collect {it as int}
 }
